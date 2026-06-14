@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tilt Monitor</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>🍺 Tilt Monitor</h1>
+  </header>
+
+  <main>
+    <section id="cards-section">
+      <h2>Current Readings</h2>
+      <div id="cards" class="cards">
+        <p id="no-data" class="muted">Waiting for a Tilt reading…</p>
+      </div>
+    </section>
+
+    <section id="bf-section">
+      <h2>Brewer's Friend</h2>
+      <label class="toggle">
+        <input type="checkbox" id="bf-enabled" />
+        <span>Send readings every <span id="bf-interval">15</span> min</span>
+      </label>
+      <div class="row">
+        <input type="password" id="bf-api-key" placeholder="API key" />
+        <button id="bf-save">Save</button>
+        <button id="bf-test">Send now</button>
+      </div>
+      <p id="bf-status" class="muted"></p>
+    </section>
+
+    <section id="history-section">
+      <h2>History</h2>
+      <div class="row">
+        <select id="history-color"></select>
+        <select id="history-hours">
+          <option value="6">6 h</option>
+          <option value="24">24 h</option>
+          <option value="48" selected>48 h</option>
+          <option value="168">7 d</option>
+          <option value="720">30 d</option>
+        </select>
+      </div>
+      <canvas id="chart"></canvas>
+    </section>
+  </main>
+
+  <script src="/static/chart.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

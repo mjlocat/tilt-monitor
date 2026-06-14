@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 config.yaml
+
+# tilt-monitor runtime data (SQLite volume)
+/data/

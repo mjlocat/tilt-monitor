@@ -1,2 +1,5 @@
-pyyaml
-mysql-connector-python
+fastapi
+uvicorn[standard]
+bleak
+aiosqlite
+httpx

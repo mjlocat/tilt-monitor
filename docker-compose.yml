@@ -1,0 +1,32 @@
+services:
+  tilt-monitor:
+    build: .
+    container_name: tilt-monitor
+    restart: unless-stopped
+    # The container runs as a non-root user (UID 1000). BLE scanning is done by
+    # the host's bluetoothd over D-Bus, so it needs:
+    #  - host networking so bleak can reach BlueZ
+    #  - the system D-Bus socket BlueZ listens on
+    #  - membership in the host 'bluetooth' group, since D-Bus policy only lets
+    #    root or that group talk to org.bluez. Set BLUETOOTH_GID to your host's
+    #    value: `getent group bluetooth` (defaults to 112 if unset).
+    network_mode: host
+    group_add:
+      - "${BLUETOOTH_GID:-112}"
+    volumes:
+      # ./data must be writable by UID 1000 (e.g. `chown -R 1000:1000 data`).
+      - ./data:/data
+      - /var/run/dbus:/var/run/dbus
+    environment:
+      # Web UI / API port. With host networking this binds directly on the host,
+      # so change it if 8000 is already taken (e.g. by Direwolf).
+      - TILT_PORT=8000
+      # Uncomment to run without a real Tilt (synthetic readings):
+      # - TILT_SIMULATE=1
+      # Pin a specific adapter if you have more than one (e.g. a USB dongle
+      # dedicated to the Tilt, leaving the built-in radio for other devices):
+      # - TILT_BLE_ADAPTER=hci1
+      # Passive scanning is gentler on other Bluetooth devices (mice, etc.)
+      # sharing the adapter. Needs BlueZ experimental enabled on the host (see
+      # the "Enabling BlueZ experimental features" section in the README).
+      # - TILT_SCAN_MODE=passive

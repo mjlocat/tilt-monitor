@@ -1,7 +1,0 @@
-db:
-  user: tilt
-  password: test
-  host: localhost
-  database: tilt
-temp_correction: 0
-sg_correction: 0
