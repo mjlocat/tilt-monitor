@@ -22,39 +22,69 @@ Everything now runs in a single process with a single SQLite database.
 
 ## Run with Docker (recommended)
 
-```sh
-git clone <this repo> && cd tilt-monitor
-```
+The image is published on Docker Hub as
+[`mjlocat/tilt-monitor`](https://hub.docker.com/r/mjlocat/tilt-monitor). You can
+pull it directly or build from source — either way the same host prerequisites
+apply.
+
+### Host prerequisites
 
 The container runs as a non-root user (UID 1000) — it needs no elevated
 privileges because the actual BLE work is done by the host's `bluetoothd` over
-D-Bus. For that to work the `docker-compose.yml` uses `network_mode: host`,
-mounts the system D-Bus socket (`/var/run/dbus`), and adds the host's
-`bluetooth` group so D-Bus policy permits talking to BlueZ.
+D-Bus. For that to work it needs `network_mode: host`, the system D-Bus socket
+(`/var/run/dbus`) mounted, and membership in the host's `bluetooth` group so
+D-Bus policy permits talking to BlueZ.
 
-Two host-specific values to check before the first run:
+Two host-specific values to set before the first run:
 
 - **`bluetooth` group GID.** D-Bus only lets root or the `bluetooth` group reach
-  `org.bluez`. Find your host's GID with `getent group bluetooth` and set it (the
-  compose file defaults to `112`):
+  `org.bluez`. Find your host's GID and write it to a `.env` file next to the
+  compose file (the compose default is `112`):
 
   ```sh
   echo "BLUETOOTH_GID=$(getent group bluetooth | cut -d: -f3)" >> .env
   ```
 
 - **`./data` ownership.** The SQLite database persists in `./data` (mounted to
-  `/data`). Since the container runs as UID 1000, make sure that directory is
-  writable by it:
+  `/data`). Since the container runs as UID 1000, make that directory writable
+  by it:
 
   ```sh
   mkdir -p data && sudo chown -R 1000:1000 data
   ```
 
-Then bring it up and open `http://<host>:8000`:
+### Option A — pull from Docker Hub
+
+Drop this `docker-compose.yml` next to the `.env` and `data` directory above:
+
+```yaml
+services:
+  tilt-monitor:
+    image: mjlocat/tilt-monitor:latest
+    container_name: tilt-monitor
+    restart: unless-stopped
+    network_mode: host
+    group_add:
+      - "${BLUETOOTH_GID:-112}"
+    volumes:
+      - ./data:/data
+      - /var/run/dbus:/var/run/dbus
+    environment:
+      - TILT_PORT=8000   # change if 8000 is already in use on the host
+```
 
 ```sh
+docker compose up -d
+```
+
+### Option B — build from source
+
+```sh
+git clone https://github.com/mjlocat/tilt-monitor.git && cd tilt-monitor
 docker compose up -d --build
 ```
+
+Either way, open `http://<host>:8000` (or whatever `TILT_PORT` you set).
 
 ## Run without Docker
 
