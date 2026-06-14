@@ -18,6 +18,8 @@ services:
       - ./data:/data
       - /var/run/dbus:/var/run/dbus
     environment:
+      # Web UI / API port. With host networking this binds directly on the host,
+      # so change it if 8000 is already taken (e.g. by Direwolf).
       - TILT_PORT=8000
       # Uncomment to run without a real Tilt (synthetic readings):
       # - TILT_SIMULATE=1

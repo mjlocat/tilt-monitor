@@ -19,6 +19,10 @@ USER tilt
 ENV TILT_DB_PATH=/data/tilt.db \
     TILT_PORT=8000
 VOLUME ["/data"]
+# Informational only (the default port); set TILT_PORT to change the bind port.
+# Note: docker-compose uses host networking, so this maps nothing — the service
+# binds directly to TILT_PORT on the host.
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Honors TILT_HOST / TILT_PORT via app/config.py (see app/__main__.py).
+CMD ["python", "-m", "app"]
