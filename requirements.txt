@@ -1,5 +1,7 @@
 fastapi
-uvicorn[standard]
+# Plain uvicorn (not [standard]): the extras pull in uvloop/httptools, which
+# have no armv7 wheels and would need a C toolchain to build. We don't need them.
+uvicorn
 bleak
 aiosqlite
 httpx
