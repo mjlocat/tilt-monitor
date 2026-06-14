@@ -24,17 +24,37 @@ Everything now runs in a single process with a single SQLite database.
 
 ```sh
 git clone <this repo> && cd tilt-monitor
-docker compose up -d --build
 ```
 
-Then open `http://<host>:8000`.
+The container runs as a non-root user (UID 1000) — it needs no elevated
+privileges because the actual BLE work is done by the host's `bluetoothd` over
+D-Bus. For that to work the `docker-compose.yml` uses `network_mode: host`,
+mounts the system D-Bus socket (`/var/run/dbus`), and adds the host's
+`bluetooth` group so D-Bus policy permits talking to BlueZ.
 
-BLE scanning inside a container needs access to the host Bluetooth stack. The
-provided `docker-compose.yml` does this with `network_mode: host`, the system
-D-Bus socket mounted (`/var/run/dbus`), and the `NET_ADMIN` capability. If your
-host refuses to scan, set `privileged: true` on the service as a fallback.
+Two host-specific values to check before the first run:
 
-The SQLite database persists in `./data` (mounted to `/data` in the container).
+- **`bluetooth` group GID.** D-Bus only lets root or the `bluetooth` group reach
+  `org.bluez`. Find your host's GID with `getent group bluetooth` and set it (the
+  compose file defaults to `112`):
+
+  ```sh
+  echo "BLUETOOTH_GID=$(getent group bluetooth | cut -d: -f3)" >> .env
+  ```
+
+- **`./data` ownership.** The SQLite database persists in `./data` (mounted to
+  `/data`). Since the container runs as UID 1000, make sure that directory is
+  writable by it:
+
+  ```sh
+  mkdir -p data && sudo chown -R 1000:1000 data
+  ```
+
+Then bring it up and open `http://<host>:8000`:
+
+```sh
+docker compose up -d --build
+```
 
 ## Run without Docker
 
