@@ -1,0 +1,57 @@
+:root {
+  --bg: #1b1d23;
+  --panel: #262a33;
+  --accent: #f0a020;
+  --text: #e6e6e6;
+  --muted: #8a8f99;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #333;
+}
+h1 { margin: 0; font-size: 1.4rem; }
+h2 { font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  gap: 2rem;
+}
+.cards { display: flex; flex-wrap: wrap; gap: 1rem; }
+.card {
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  min-width: 220px;
+  border-left: 6px solid var(--color, var(--accent));
+}
+.card .color-name { font-weight: 600; font-size: 1.1rem; }
+.card .big { font-size: 2rem; font-weight: 700; }
+.card .sub { color: var(--muted); font-size: .85rem; }
+.card .cal { margin-top: .75rem; display: grid; gap: .35rem; }
+.card .cal label { font-size: .75rem; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.card .cal input { width: 90px; }
+input, select, button {
+  background: #1f232b;
+  color: var(--text);
+  border: 1px solid #3a3f4a;
+  border-radius: 6px;
+  padding: .45rem .6rem;
+  font-size: .9rem;
+}
+button { background: var(--accent); color: #1b1d23; border: none; font-weight: 600; cursor: pointer; }
+button.secondary { background: #3a3f4a; color: var(--text); }
+.row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin: .5rem 0; }
+.toggle { display: flex; align-items: center; gap: .5rem; }
+.muted { color: var(--muted); }
+section { background: var(--panel); border-radius: 12px; padding: 1.25rem 1.5rem; }
+#cards-section { background: transparent; padding: 0; }
+canvas { margin-top: 1rem; }

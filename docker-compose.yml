@@ -1,0 +1,27 @@
+services:
+  tilt-monitor:
+    build: .
+    container_name: tilt-monitor
+    restart: unless-stopped
+    # BLE scanning needs access to the host Bluetooth stack:
+    #  - host networking so bleak can reach BlueZ
+    #  - the system D-Bus socket BlueZ listens on
+    #  - NET_ADMIN to manage the BLE scan (use `privileged: true` if your
+    #    host needs more; some setups require it)
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./data:/data
+      - /var/run/dbus:/var/run/dbus
+    environment:
+      - TILT_PORT=8000
+      # Uncomment to run without a real Tilt (synthetic readings):
+      # - TILT_SIMULATE=1
+      # Pin a specific adapter if you have more than one (e.g. a USB dongle
+      # dedicated to the Tilt, leaving the built-in radio for other devices):
+      # - TILT_BLE_ADAPTER=hci1
+      # Passive scanning is gentler on other Bluetooth devices (mice, etc.)
+      # sharing the adapter. Needs BlueZ experimental enabled on the host (see
+      # the "Enabling BlueZ experimental features" section in the README).
+      # - TILT_SCAN_MODE=passive
