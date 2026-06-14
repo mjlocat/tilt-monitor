@@ -20,6 +20,12 @@ Everything now runs in a single process with a single SQLite database.
 - **Portable** — uses [bleak](https://github.com/hbldh/bleak) (host BlueZ), so
   no custom `aioblescan` build is required.
 
+## Screenshot
+
+![tilt-monitor dashboard: a live reading card with calibration fields, the Brewer's Friend toggle, and a gravity/temperature history graph](https://raw.githubusercontent.com/mjlocat/tilt-monitor/main/docs/dashboard.png)
+
+*The dashboard mid-fermentation (shown with sample data).*
+
 ## Run with Docker (recommended)
 
 The image is published on Docker Hub as
