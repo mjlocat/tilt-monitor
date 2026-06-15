@@ -18,6 +18,7 @@ from . import config
 from .ble import SimulatedScanner, TiltScanner
 from .db import Database
 from .scheduler import run_uploader, upload_once
+from .version import get_version
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
 log = logging.getLogger("tilt-monitor")
@@ -131,6 +132,11 @@ async def api_bf_test():
     """Force an immediate upload attempt (useful for verifying setup)."""
     await upload_once(app.state.db, config.UPLOAD_INTERVAL_SECONDS)
     return {"ok": True}
+
+
+@app.get("/api/version")
+async def api_version():
+    return {"version": get_version()}
 
 
 @app.get("/")

@@ -100,6 +100,20 @@ async function saveCalibration(color) {
   await refreshChart();
 }
 
+// Compute {min, max} for a y-axis so its data lands within the vertical fraction
+// [f0, f1] of the plot (0 = bottom, 1 = top). Returns {} for empty or flat data
+// so Chart.js falls back to auto-fit.
+function bandedAxis(values, f0, f1) {
+  const vals = values.filter((v) => v != null && !Number.isNaN(v));
+  if (!vals.length) return {};
+  const lo = Math.min(...vals);
+  const hi = Math.max(...vals);
+  if (hi === lo) return {};
+  const span = (hi - lo) / (f1 - f0);
+  const min = lo - f0 * span;
+  return { min, max: min + span };
+}
+
 async function refreshChart() {
   const color = document.getElementById("history-color").value;
   const hours = document.getElementById("history-hours").value;
@@ -107,6 +121,14 @@ async function refreshChart() {
   const data = await getJSON(`/api/history?color=${color}&hours=${hours}`);
   const hex = COLOR_HEX[color] || "#f0a020";
   const points = data.map((d) => ({ x: d.ts * 1000, sg: d.sg, temp: d.temperature }));
+
+  // Confine each series to its own horizontal band so they can't overlap:
+  // Gravity to the top ~40% of the plot, Temp to the bottom ~40%, leaving a gap
+  // in the middle. Both measurements use independent axes anyway, so absolute
+  // vertical position is already arbitrary — pinning the bands stops a noisy
+  // trace from washing out the other when their auto-fit ranges would collide.
+  const sgAxis = bandedAxis(points.map((p) => p.sg), 0.55, 0.95);
+  const tempAxis = bandedAxis(points.map((p) => p.temp), 0.05, 0.45);
 
   const cfg = {
     type: "line",
@@ -136,8 +158,8 @@ async function refreshChart() {
       animation: false,
       scales: {
         x: { type: "time", ticks: { color: "#8a8f99" }, grid: { color: "#333" } },
-        y: { position: "left", title: { display: true, text: "SG", color: "#8a8f99" }, ticks: { color: "#8a8f99" }, grid: { color: "#333" } },
-        y1: { position: "right", title: { display: true, text: "°F", color: "#8a8f99" }, ticks: { color: "#8a8f99" }, grid: { drawOnChartArea: false } },
+        y: { position: "left", ...sgAxis, title: { display: true, text: "SG", color: "#8a8f99" }, ticks: { color: "#8a8f99" }, grid: { color: "#333" } },
+        y1: { position: "right", ...tempAxis, title: { display: true, text: "°F", color: "#8a8f99" }, ticks: { color: "#8a8f99" }, grid: { drawOnChartArea: false } },
       },
       plugins: { legend: { labels: { color: "#e6e6e6" } } },
     },
@@ -184,8 +206,18 @@ function setStatus(msg) {
   document.getElementById("bf-status").textContent = msg;
 }
 
+async function refreshVersion() {
+  try {
+    const { version } = await getJSON("/api/version");
+    document.getElementById("version").textContent = `Version: ${version}`;
+  } catch {
+    /* footer is cosmetic; ignore failures */
+  }
+}
+
 async function init() {
   wireEvents();
+  await refreshVersion();
   await refreshCalibration();
   await refreshSettings();
   await refreshCurrent();

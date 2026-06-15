@@ -22,9 +22,14 @@ VERSION="$1"
 # Build from the repo root (where this script lives), regardless of cwd.
 cd "$(dirname "$0")"
 
+# Stamp the image with the exact source revision (tag + commits-since + hash),
+# surfaced in the dashboard footer via app/version.py.
+GIT_DESCRIBE="$(git describe --tags --always --long --dirty)"
+
 echo "Building ${IMAGE}:${VERSION} (and :latest) for ${PLATFORMS}..."
 docker buildx build \
   --platform "${PLATFORMS}" \
+  --build-arg TILT_GIT_DESCRIBE="${GIT_DESCRIBE}" \
   -t "${IMAGE}:${VERSION}" \
   -t "${IMAGE}:latest" \
   --push .

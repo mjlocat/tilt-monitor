@@ -16,7 +16,12 @@ RUN groupadd -g 1000 tilt \
     && mkdir -p /data && chown tilt:tilt /data
 USER tilt
 
-ENV TILT_DB_PATH=/data/tilt.db \
+# Baked at build time (`.git` isn't copied into the image). Pass the raw
+# `git describe --tags --always --long --dirty` output; app/version.py formats it
+# for the dashboard footer. publish.sh wires this up automatically.
+ARG TILT_GIT_DESCRIBE=""
+ENV TILT_GIT_DESCRIBE=${TILT_GIT_DESCRIBE} \
+    TILT_DB_PATH=/data/tilt.db \
     TILT_PORT=8000
 VOLUME ["/data"]
 # Informational only (the default port); set TILT_PORT to change the bind port.
